@@ -12,13 +12,13 @@ import registerPage from './views/registerPage.js';
 
 
 // Configurate the routes in the routing table
-page('/', middlewareDecorateContextFunction, homePage);
-page('/home', middlewareDecorateContextFunction, homePage);
-page('/create', middlewareDecorateContextFunction, createPage);
-page('/details/:movieId', middlewareDecorateContextFunction, detailsPage);
-page('/edit/:movieId', middlewareDecorateContextFunction, editPage);
-page('/login', middlewareDecorateContextFunction, loginPage);
-page('/register', middlewareDecorateContextFunction, registerPage);
+page('/', middlewareRenderContent, homePage);
+page('/home', middlewareRenderContent, homePage);
+page('/create', middlewareRenderContent, createPage);
+page('/details/:movieId', middlewareRenderContent, detailsPage);
+page('/edit/:movieId', middlewareRenderContent, editPage);
+page('/login', middlewareSetNavigationForRegisterLoginPage, middlewareRenderContent, loginPage);
+page('/register', middlewareSetNavigationForRegisterLoginPage, middlewareRenderContent, registerPage);
 
 document.querySelector('#logout').addEventListener('click', logout);
 const setNavigationForUser = () => {
@@ -32,20 +32,25 @@ const setNavigationForUser = () => {
     [...document.querySelectorAll('.user')].forEach(user => user.style.display = 'none');
     [...document.querySelectorAll('.guest')].forEach(guest => guest.style.display = 'block');
 }
-// Start My Application and setup user navigation
-page.start();
+// setup user navigation and start the router
 setNavigationForUser();
+page.start();
 
-function middlewareDecorateContextFunction(context, next) {
-    context.renderContent = (content) => render(content, document.querySelector('#container'));
+
+function middlewareSetNavigationForRegisterLoginPage(context, next) {
     context.setUserNav = setNavigationForUser;
-
+    next();
+}
+function middlewareRenderContent(context, next) {
+    context.renderContent = (content) => render(content, document.querySelector('#container'));
     next();
 }
 
 function logout(ev) {
-    ev.preventDefault();
     sessionStorage.clear();
     setNavigationForUser();
-    page.redirect('/home');
+    
+    if (window.location.pathname !== '/home') {
+        page.redirect('/home');
+    }
 }
