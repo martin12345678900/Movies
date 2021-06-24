@@ -1,54 +1,53 @@
-async function mainRequest(url, options) {
+async function request(URL, options) {
     try {
-        const response = await fetch(url, options);
+        const response = await fetch(URL, options); // making fetch request to the server with URL and options
 
-        if (response.ok == false) {
+        if (response.status !== 200 && response.ok == false) { // condition if status of the reponse is !== 200
             const errorMessage = await response.json().message;
-            throw new Error(errorMessage);
+            throw new Error(errorMessage); // if yes throw a new error with the message of the error ,that gonna redirect us to the catch and throw the error
         } else {
-            return await response.json();
+            return await response.json(); // if not we return the data
         }
     } catch (error) {
-        throw error.message;
+        alert(error.message);
+        throw error;
     }
-};
-
-// REST Methods(CRUD operations)
-
-async function get(resourse) {
-    return mainRequest('http://localhost:3030' + resourse, getOptionsFunc('get'));
 }
 
-async function post(resourse, data) {
-    return mainRequest('http://localhost:3030' + resourse, getOptionsFunc('post', data));
-}
-
-async function put(resourse, data) {
-    return mainRequest('http://localhost:3030' + resourse, getOptionsFunc('put', data));
-}
-
-async function del(resourse) {
-    return mainRequest('http://localhost:3030' + resourse, getOptionsFunc('delete'));
-}
-
-
-// Function that sets the options object
-function getOptionsFunc(method, data) {
-    const options = {
-        method,
-        headers: { }
+function setOptions(requestMethod, data = undefined) {
+    let options = {
+        method: requestMethod,
+        headers: { },
     }
-
-    if (data) {
+    const authToken = sessionStorage.getItem('accessToken');
+    if (authToken) {
+        options.headers['X-Authorization'] = authToken;
+    }
+    if (data) { // for POST and PUT requests
         options.headers['Content-Type'] = 'application/json';
         options.body = JSON.stringify(data);
     }
 
-    const authToken = sessionStorage.getItem('authToken');
-    if (authToken != null) {
-        options.headers['X-Authorization'] = authToken;
-    }
     return options;
+}
+
+// CRUD Operations
+const host = 'http://localhost:3030';
+
+async function get(resourse) {
+    return await request(host + resourse, setOptions('get')); // Example: http://localhost:3030/users/register { method: 'get', headers: { X-Authorzation: accessToken }}
+}
+
+async function post(resourse, data) {
+    return await request(host + resourse, setOptions('post', data)); // Example: http://localhost:3030/users/register { method: 'post', headers: { X-Authorzation: accessToken, Content-Type: 'application/json' }, body: JSON.stringify(data)};
+}
+
+async function put(resourse, data) {
+    return await request(host + resourse, setOptions('put', data)); // Example: http://localhost:3030/users/register { method: 'put', headers: { X-Authorzation: accessToken, Content-Type: 'application/json' }, body: JSON.stringify(data)}
+}
+
+async function del(resourse) {
+    return await request(host + resourse, setOptions('delete')); // Example: http://localhost:3030/users/register { method: 'delete', headers: { X-Authorzation: accessToken }}
 }
 
 export {
