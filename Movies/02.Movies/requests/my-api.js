@@ -2,7 +2,7 @@ async function request(URL, options) {
     try {
         const response = await fetch(URL, options); // making fetch request to the server with URL and options
 
-        if (response.status !== 200 && response.ok == false) { // condition if status of the reponse is !== 200
+        if (response.ok == false) { // condition if status of the reponse is !== 200
             const errorMessage = await response.json().message;
             throw new Error(errorMessage); // if yes throw a new error with the message of the error ,that gonna redirect us to the catch and throw the error
         } else {
