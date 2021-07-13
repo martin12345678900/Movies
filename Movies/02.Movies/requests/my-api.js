@@ -19,7 +19,7 @@ function setOptions(requestMethod, data = undefined) {
         method: requestMethod,
         headers: { },
     }
-    const authToken = sessionStorage.getItem('accessToken');
+    const authToken = sessionStorage.getItem('authToken');
     if (authToken) {
         options.headers['X-Authorization'] = authToken;
     }
